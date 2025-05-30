@@ -40,7 +40,7 @@
                   <div class="form-group">
                     <label for="exampleInputPassword1">Nama Dosen</label>
                     <select class="form-control" id="nidn" name="nidn">
-                      <option selected hidden>{{ $nilai->dosen->nama_dosen }}</option>
+                      <option selected value="{{ $nilai->nidn }}" hidden>{{ $nilai->dosen->nama_dosen }}</option>
                       @foreach ($dosen as $data1)
                       <option value="{{ $data1->nidn }}">{{ $data1->nama_dosen }}</option>
                       @endforeach

@@ -12,75 +12,6 @@ use App\Models\Semester;
 use App\Models\Detail_nilai;
 
 
-class Dosen extends Model
-{
-
-    use HasFactory;
-
-    protected $table = 'tb_dosen';
-
-    public function prodi()
-    {
-        return $this->belongsTo(Prodi::class, 'id_prodi');
-    }
-
-    public function jurusan()
-    {
-        return $this->belongsTo(Jurusan::class, 'id_jurusan');
-    }
-
-    public function matakuliah()
-    {
-        return $this->belongsTo(Matakuliah::class, 'id_matakuliah');
-    }
-}
-
-class Mahasiswa extends Model
-{
-
-    use HasFactory;
-
-    protected $table = 'tb_mahasiswa';
-
-    public function jurusan()
-    {
-        return $this->belongsTo(Jurusan::class, 'id_jurusan');
-    }
-    
-    public function prodi()
-    {
-        return $this->belongsTo(Prodi::class, 'id_prodi');
-    }
-}
-
-class Nilai extends Model
-{
-
-    use HasFactory;
-
-    protected $table = 'nilai';
-
-    public function dosen()
-    {
-        return $this->belongsTo(Dosen::class, 'nidn', 'nidn');
-    }
-
-    public function matakuliah()
-    {
-        return $this->belongsTo(Matakuliah::class, 'id_matakuliah');
-    }
-
-    public function tahun_akademik()
-    {
-        return $this->belongsTo(Tahun_akademik::class, 'id_tahun_akademik');
-    }
-
-    public function detail_nilai()
-    {
-        return $this->belongsTo(Detail_nilai::class, 'id_nilai');
-    }
-}
-
 class m_admin extends Model
 {
     #DOSEN
@@ -169,6 +100,35 @@ class m_admin extends Model
 
     public function deleteData_nilai($id_nilai){
         DB::table('nilai')->where('id_nilai', $id_nilai)->delete();
+    }
+
+    #RINCIAN_NILAI
+    public function rincian_nilai($id_nilai){
+        return Nilai::with([
+            'dosen',
+            'matakuliah.semester',
+            'matakuliah.kelas',
+            'matakuliah.kelas.mahasiswa',
+            'matakuliah.prodi.jurusan',
+            'tahun_akademik',
+            'detail_nilai',
+        ])
+        ->where('id_nilai', $id_nilai)
+        ->first();
+    }
+    public function allData_rincian_nilai() {
+        return Detail_nilai::with([
+            'mahasiswa',
+            'nilai',
+            'nilai.dosen',
+            'nilai.matakuliah',
+            'nilai.matakuliah.kelas',
+            'nilai.matakuliah.prodi',
+            'nilai.matakuliah.semester',
+            'nilai.tahun_akademik',
+        ])
+        ->get()
+        ->sortBy('mahasiswa.nama_mahasiswa'); // sortir setelah diambil
     }
 
     #USER

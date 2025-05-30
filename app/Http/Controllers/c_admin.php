@@ -353,13 +353,6 @@ class c_admin extends Controller
         return view('admin/nilai', $data);
     }
 
-    public function detail_nilai($id_nilai){
-        if(!$this->m_admin->detailData_nilai($id_nilai))
-        {abort(404);}
-        $data = ['nilai' => $this->m_admin->detailData_nilai($id_nilai)];
-        return view('admin/nilai_detail', $data);
-    }
-
     public function add_nilai(){
 
         $data = [
@@ -434,31 +427,163 @@ class c_admin extends Controller
             'nidn' => 'required',
             'id_matakuliah' => 'required',
             'id_tahun_akademik' => 'required',
-            'komposisi_nilai_lain' => 'required',
-            'komposisi_nilai_uts' => 'required',
-            'komposisi_nilai_uas' => 'required',
+            'komposisi_nilai_lain' => 'required|numeric',
+            'komposisi_nilai_uts' => 'required|numeric',
+            'komposisi_nilai_uas' => 'required|numeric',
         ],[
-            'nidn.required' => 'NIDN wajib diisi !',
+            'nidn.required' => 'Nama Dosen wajib diisi !',
             'id_matakuliah.required' => 'Nama Matakuliah wajib diisi !',
             'id_tahun_akademik.required' => 'Tahun Akademik wajib diisi !',
             'komposisi_nilai_lain.required' => 'Nilai Lain-lain Wajib diisi !',
             'komposisi_nilai_uts.required' => 'Nilai UTS Wajib diisi !',
             'komposisi_nilai_uas.required' => 'Nilai UAS Wajib diisi !',
         ]);
+        $total = request()->komposisi_nilai_lain + request()->komposisi_nilai_uts + request()->komposisi_nilai_uas;
 
-            $data = [
-                'nidn' => request()->nidn,
-                'id_matakuliah' => request()->id_matakuliah,
-                'id_tahun_akademik' => request()->id_tahun_akademik,
-                'komposisi_nilai_lain' => request()->komposisi_nilai_lain,
-                'komposisi_nilai_uts' => request()->komposisi_nilai_uts,
-                'komposisi_nilai_uas' => request()->komposisi_nilai_uas,
-            ];
-            $this->m_admin->editData_nilai($id_nilai, $data);
+        if ($total != 100) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['total_komposisi' => 'Total komposisi nilai harus tepat 100!']);
+        }
+
+        $data = [
+            'nidn' => request()->nidn,
+            'id_matakuliah' => request()->id_matakuliah,
+            'id_tahun_akademik' => request()->id_tahun_akademik,
+            'komposisi_nilai_lain' => request()->komposisi_nilai_lain,
+            'komposisi_nilai_uts' => request()->komposisi_nilai_uts,
+            'komposisi_nilai_uas' => request()->komposisi_nilai_uas,
+        ];
+        $this->m_admin->editData_nilai($id_nilai, $data);
         return redirect()->route('nilai')->with('pesan', 'Data berhasil diedit !');
     }
 
     public function delete_nilai($id_nilai){
+        if(!$this->m_admin->detailData_nilai($id_nilai))
+        {abort(404);}
+        $this->m_admin->deleteData_nilai($id_nilai);
+        return redirect()->route('nilai')->with('pesan', 'Data berhasil dihapus !');
+    }
+
+    
+    #----------------------------------------------------------------------------
+
+    #NILAI-RINCIAN_NILAI
+
+    public function rincian_nilai($id_nilai){
+        if(!$this->m_admin->rincian_nilai($id_nilai))
+        {abort(404);}
+
+        
+        $data = ['nilai' => $this->m_admin->rincian_nilai($id_nilai)];
+        $data2 = ['rincian_nilai' => $this->m_admin->allData_rincian_nilai()];
+        return view('admin/rincian_nilai', $data, $data2);
+    }
+
+    public function add_rincian_nilai($id_nilai){
+
+        $nilai = $this->m_admin->rincian_nilai($id_nilai);
+        $data = [
+            'nilai' => $nilai,
+            'mhs' => $nilai->matakuliah->kelas->mahasiswa ?? collect()
+        ];
+        return view('admin/rincian_nilai_add', $data);
+    }
+
+
+    public function insert_rincian_nilai(){
+
+        // validasi form
+        Request()->validate([
+            'nidn' => 'required',
+            'id_matakuliah' => 'required',
+            'id_tahun_akademik' => 'required',
+            'komposisi_nilai_lain' => 'required|numeric',
+            'komposisi_nilai_uts' => 'required|numeric',
+            'komposisi_nilai_uas' => 'required|numeric',
+        ],[
+            'nidn.required' => 'Nama Dosen wajib diisi !',
+            'id_matakuliah.required' => 'Nama Matakuliah wajib diisi !',
+            'id_tahun_akademik.required' => 'Tahun Akademik wajib diisi !',
+            'komposisi_nilai_lain.required' => 'Nilai Lain-lain Wajib diisi !',
+            'komposisi_nilai_uts.required' => 'Nilai UTS Wajib diisi !',
+            'komposisi_nilai_uas.required' => 'Nilai UAS Wajib diisi !',
+        ]);
+        $total = request()->komposisi_nilai_lain + request()->komposisi_nilai_uts + request()->komposisi_nilai_uas;
+
+        if ($total != 100) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['total_komposisi' => 'Total komposisi nilai harus tepat 100!']);
+        }
+
+        $data = [
+            'nidn' => request()->nidn,
+            'id_matakuliah' => request()->id_matakuliah,
+            'id_tahun_akademik' => request()->id_tahun_akademik,
+            'komposisi_nilai_lain' => request()->komposisi_nilai_lain,
+            'komposisi_nilai_uts' => request()->komposisi_nilai_uts,
+            'komposisi_nilai_uas' => request()->komposisi_nilai_uas,
+        ];
+        $this->m_admin->addData_nilai($data);
+        return redirect()->route('nilai')->with('pesan', 'Data berhasil ditambahkan !');
+    }
+
+    public function edit_rincian_nilai($id_nilai){
+        if(!$this->m_admin->detailData_nilai($id_nilai))
+        {abort(404);}
+        $data = ['nilai' => $this->m_admin->detailData_nilai($id_nilai)];
+        
+        $data2 = [
+            'dosen' => DB::table('tb_dosen')->get(),
+            'matakuliah' => DB::table('mata_kuliah')->get(),
+            'semester' => DB::table('semester')->get(),
+            'tahun_akademik' => DB::table('tahun_akademik')->get(),
+            'prodi' => DB::table('prodi')->get(),
+            'jurusan' => DB::table('jurusan')->get(),
+        ];
+        return view('admin/nilai_edit', $data, $data2);
+    }
+
+    public function update_rincian_nilai($id_nilai){
+        
+        // validasi form
+        Request()->validate([
+            'nidn' => 'required',
+            'id_matakuliah' => 'required',
+            'id_tahun_akademik' => 'required',
+            'komposisi_nilai_lain' => 'required|numeric',
+            'komposisi_nilai_uts' => 'required|numeric',
+            'komposisi_nilai_uas' => 'required|numeric',
+        ],[
+            'nidn.required' => 'Nama Dosen wajib diisi !',
+            'id_matakuliah.required' => 'Nama Matakuliah wajib diisi !',
+            'id_tahun_akademik.required' => 'Tahun Akademik wajib diisi !',
+            'komposisi_nilai_lain.required' => 'Nilai Lain-lain Wajib diisi !',
+            'komposisi_nilai_uts.required' => 'Nilai UTS Wajib diisi !',
+            'komposisi_nilai_uas.required' => 'Nilai UAS Wajib diisi !',
+        ]);
+        $total = request()->komposisi_nilai_lain + request()->komposisi_nilai_uts + request()->komposisi_nilai_uas;
+
+        if ($total != 100) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['total_komposisi' => 'Total komposisi nilai harus tepat 100!']);
+        }
+
+        $data = [
+            'nidn' => request()->nidn,
+            'id_matakuliah' => request()->id_matakuliah,
+            'id_tahun_akademik' => request()->id_tahun_akademik,
+            'komposisi_nilai_lain' => request()->komposisi_nilai_lain,
+            'komposisi_nilai_uts' => request()->komposisi_nilai_uts,
+            'komposisi_nilai_uas' => request()->komposisi_nilai_uas,
+        ];
+        $this->m_admin->editData_nilai($id_nilai, $data);
+        return redirect()->route('nilai')->with('pesan', 'Data berhasil diedit !');
+    }
+
+    public function delete_rincian_nilai($id_nilai){
         if(!$this->m_admin->detailData_nilai($id_nilai))
         {abort(404);}
         $this->m_admin->deleteData_nilai($id_nilai);

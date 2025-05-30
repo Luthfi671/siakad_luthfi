@@ -52,10 +52,10 @@
                     <?php $no = 1 ;?>
                     @foreach ($nilai as $data)
                     <tr>
-                      <td>{{ $no++ }}</td>
+                      <td >{{ $no++ }}</td>
                       <td>{{ $data->dosen->nama_dosen }}</td>
                       <td>{{ $data->matakuliah->nama_matakuliah }}</td>
-                      <td>{{ $data->matakuliah->semester->nama_semester }}</td>
+                      <td>{{ $data->matakuliah->semester->semester }}</td>
                       <td>{{ $data->tahun_akademik->tahun_akademik }}</td>
                       <td>{{ $data->matakuliah->prodi->nama_prodi }}</td>
                       <td>{{ $data->matakuliah->prodi->jurusan->nama_jurusan}}</td>
@@ -63,9 +63,9 @@
                       <td>{{ $data->komposisi_nilai_uts }} %</td>
                       <td>{{ $data->komposisi_nilai_uas }} %</td>
                       <td style="display:flex; flex-direction: column; gap:2px; border:none;">
-                          <a href="/admin/nilai/detail/{{ $data->id_nilai }}" class="btn btn-success">Rincian Data Nilai</a>
-                          <a href="/admin/nilai/edit/{{ $data->id_nilai }}" class="btn btn-warning">Edit</a>
-                          <a href="/admin/nilai/delete/{{ $data->id_nilai }}" type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete{{$data->id_nilai}}">Delete</a>
+                          <a href="/admin/nilai/rincian_nilai/{{ $data->id_nilai }}" class="btn btn-success p-1">Rincian Data Nilai</a>
+                          <a href="/admin/nilai/edit/{{ $data->id_nilai }}" class="btn btn-warning p-1">Edit</a>
+                          <a href="/admin/nilai/delete/{{ $data->id_nilai }}" type="button" class="btn btn-danger p-1" data-toggle="modal" data-target="#delete{{$data->id_nilai}}">Delete</a>
                       </td>
                     </tr>
                     @endforeach

@@ -67,12 +67,14 @@ Route::post('/admin/mahasiswa/update/{nim}', [c_admin::class, 'update_mahasiswa'
 Route::post('/admin/mahasiswa/insert', [c_admin::class, 'insert_mahasiswa'])->name('insert_mahasiswa');
 #ADMIN-NILAI
 Route::get('/admin/nilai/add', [c_admin::class, 'add_nilai'])->name('add_nilai');
-Route::get('/admin/nilai/detail/{id_nilai}', [c_admin::class, 'detail_nilai'])->name('detail_nilai');
 Route::get('/admin/nilai/edit/{id_nilai}', [c_admin::class, 'edit_nilai'])->name('edit_nilai');
 Route::get('/admin/nilai/delete/{id_nilai}', [c_admin::class, 'delete_nilai'])->name('delete_nilai');
 Route::post('/admin/nilai/update/{id_nilai}', [c_admin::class, 'update_nilai'])->name('update_nilai');
 Route::post('/admin/nilai/insert', [c_admin::class, 'insert_nilai'])->name('insert_nilai');
-
+#ADMIN-NILAI-RINCIAN_NILAI
+Route::get('/admin/nilai/rincian_nilai/{id_nilai}', [c_admin::class, 'rincian_nilai'])->name('rincian_nilai');
+Route::get('/admin/nilai/rincian_nilai/add/{id_nilai}', [c_admin::class, 'add_rincian_nilai'])->name('add_rincian_nilai');
+Route::get('/admin/nilai/rincian_nilai/insert', [c_admin::class, 'insert_rincian_nilai'])->name('insert_rincian_nilai');
 
 #DOSEN--------------------------------------
 use App\Http\Controllers\c_dosen;

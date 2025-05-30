@@ -18,22 +18,29 @@ class Matakuliah extends Model
     {
         return $this->hasMany(Dosen::class, 'id_matakuliah');
     }
-
+    
     // Optional: relasi ke nilai
     public function nilai()
     {
         return $this->hasMany(Nilai::class, 'id_matakuliah');
     }
-
+    
     // Optional: relasi ke semester
     public function semester()
     {
         return $this->belongsTo(Semester::class, 'id_semester');
     }
-
+    
+    // Optional: relasi ke kelas
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'id_kelas');
+    }
+    
     // Optional: relasi ke prodi
     public function prodi()
     {
         return $this->belongsTo(Prodi::class, 'id_prodi');
     }
+
 }

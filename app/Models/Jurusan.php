@@ -19,9 +19,9 @@ class Jurusan extends Model
         return $this->hasMany(Dosen::class, 'id_jurusan');
     }
 
-    // Optional: relasi ke nilai
-    public function nilai()
+    // Optional: relasi ke prodi
+    public function prodi()
     {
-        return $this->hasMany(Nilai::class, 'id_jurusan');
+        return $this->hasMany(Prodi::class, 'id_jurusan');
     }
 }
