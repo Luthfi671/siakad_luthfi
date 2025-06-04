@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\m_admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+
 
 class c_admin extends Controller
 {
@@ -490,107 +493,173 @@ class c_admin extends Controller
         return view('admin/rincian_nilai_add', $data);
     }
 
+    private function hitungGradeStatus($nilai_akhir)
+    {
+        if ($nilai_akhir >= 85) return ['A', 'Lulus'];
+        elseif ($nilai_akhir >= 78) return ['AB', 'Lulus'];
+        elseif ($nilai_akhir >= 70) return ['B', 'Lulus'];
+        elseif ($nilai_akhir >= 63) return ['BC', 'Lulus'];
+        elseif ($nilai_akhir >= 55) return ['C', 'Lulus'];
+        elseif ($nilai_akhir >= 40) return ['D', 'Percobaan'];
+        else return ['E', 'Tidak Lulus'];
+    }
 
-    public function insert_rincian_nilai(){
+    public function insert_rincian_nilai($id_nilai){
 
         // validasi form
         Request()->validate([
-            'nidn' => 'required',
-            'id_matakuliah' => 'required',
-            'id_tahun_akademik' => 'required',
+            'nim' => 'required',
+            'lain_lain' => 'required|numeric|min:0|max:100',
+            'uts' => 'required|numeric|min:0|max:100',
+            'uas' => 'required|numeric|min:0|max:100',
             'komposisi_nilai_lain' => 'required|numeric',
             'komposisi_nilai_uts' => 'required|numeric',
             'komposisi_nilai_uas' => 'required|numeric',
+            'keterangan' => 'nullable',
+            'id_nilai' => 'required',
         ],[
-            'nidn.required' => 'Nama Dosen wajib diisi !',
-            'id_matakuliah.required' => 'Nama Matakuliah wajib diisi !',
-            'id_tahun_akademik.required' => 'Tahun Akademik wajib diisi !',
-            'komposisi_nilai_lain.required' => 'Nilai Lain-lain Wajib diisi !',
-            'komposisi_nilai_uts.required' => 'Nilai UTS Wajib diisi !',
-            'komposisi_nilai_uas.required' => 'Nilai UAS Wajib diisi !',
+            'nim.required' => 'Mahasiswa wajib diisi !',
+            'lain_lain.required' => 'Nilai lain-lain wajib diisi !',
+            'lain_lain.min' => 'Nilai lain-lain tidak boleh kurang dari 0!',
+            'lain_lain.max' => 'Nilai lain-lain tidak boleh lebih dari 100!',
+            'uts.required' => 'Nilai UTS  wajib diisi !',
+            'uts.min' => 'Nilai UTS tidak boleh kurang dari 0!',
+            'uts.max' => 'Nilai UTS tidak boleh lebih dari 100!',
+            'uas.required' => 'Nilai UAS Wajib diisi !',
+            'uas.min' => 'Nilai UAS tidak boleh kurang dari 0!',
+            'uas.max' => 'Nilai UAS tidak boleh lebih dari 100!',
+            'komposisi_nilai_lain.required' => 'Komposisi Lain-lain Wajib diisi !',
+            'komposisi_nilai_uts.required' => 'Komposisi UTS Wajib diisi !',
+            'komposisi_nilai_uas.required' => 'Komposisi UAS Wajib diisi !',
+            'id_nilai.required' => 'id_nilai Wajib diisi !',
         ]);
-        $total = request()->komposisi_nilai_lain + request()->komposisi_nilai_uts + request()->komposisi_nilai_uas;
 
-        if ($total != 100) {
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['total_komposisi' => 'Total komposisi nilai harus tepat 100!']);
-        }
+        // Hitung nilai akhir
+        $bobot_lain = request()->komposisi_nilai_lain;
+        $bobot_uts = request()->komposisi_nilai_uts;
+        $bobot_uas = request()->komposisi_nilai_uas;
+        $nilai_akhir = (request()->lain_lain * ($bobot_lain / 100)) + (request()->uts * ($bobot_uts / 100)) + (request()->uas * ($bobot_uas / 100));
+
+        [$grade, $status] = $this->hitungGradeStatus($nilai_akhir);
+
+        $keterangan = request()->keterangan ?? 'tidak ada keterangan';
 
         $data = [
-            'nidn' => request()->nidn,
-            'id_matakuliah' => request()->id_matakuliah,
-            'id_tahun_akademik' => request()->id_tahun_akademik,
-            'komposisi_nilai_lain' => request()->komposisi_nilai_lain,
-            'komposisi_nilai_uts' => request()->komposisi_nilai_uts,
-            'komposisi_nilai_uas' => request()->komposisi_nilai_uas,
+            'nim' => request()->nim,
+            'lain_lain' => request()->lain_lain,
+            'uts' => request()->uts,
+            'uas' => request()->uas,
+            'nilai_akhir' => $nilai_akhir,
+            'grade' => $grade,
+            'status' => $status,
+            'keterangan' => $keterangan,
+            'id_nilai' => request()->id_nilai,
         ];
-        $this->m_admin->addData_nilai($data);
-        return redirect()->route('nilai')->with('pesan', 'Data berhasil ditambahkan !');
+        $this->m_admin->addData_rincian_nilai($data);
+        return $this->rincian_nilai($id_nilai)->with('pesan', 'Data berhasil ditambahkan !');
     }
 
-    public function edit_rincian_nilai($id_nilai){
-        if(!$this->m_admin->detailData_nilai($id_nilai))
+    public function edit_rincian_nilai($id_detail_nilai, $id_nilai){
+        if(!$this->m_admin->detail_rincian_nilai($id_detail_nilai))
         {abort(404);}
-        $data = ['nilai' => $this->m_admin->detailData_nilai($id_nilai)];
-        
-        $data2 = [
-            'dosen' => DB::table('tb_dosen')->get(),
-            'matakuliah' => DB::table('mata_kuliah')->get(),
-            'semester' => DB::table('semester')->get(),
-            'tahun_akademik' => DB::table('tahun_akademik')->get(),
-            'prodi' => DB::table('prodi')->get(),
-            'jurusan' => DB::table('jurusan')->get(),
+
+        $nilai = $this->m_admin->rincian_nilai($id_nilai);
+        $nilai1 = $this->m_admin->detail_rincian_nilai($id_detail_nilai);
+
+        $data = [
+            'nilai' => $nilai,
+            'nilai1' => $nilai1,
+            'mhs' => $nilai->matakuliah->kelas->mahasiswa ?? collect()
         ];
-        return view('admin/nilai_edit', $data, $data2);
+        return view('admin/rincian_nilai_edit', $data);
     }
 
-    public function update_rincian_nilai($id_nilai){
+    public function update_rincian_nilai($id_detail_nilai, $id_nilai){
         
         // validasi form
         Request()->validate([
-            'nidn' => 'required',
-            'id_matakuliah' => 'required',
-            'id_tahun_akademik' => 'required',
+            'nim' => 'required',
+            'lain_lain' => 'required|numeric|min:0|max:100',
+            'uts' => 'required|numeric|min:0|max:100',
+            'uas' => 'required|numeric|min:0|max:100',
             'komposisi_nilai_lain' => 'required|numeric',
             'komposisi_nilai_uts' => 'required|numeric',
             'komposisi_nilai_uas' => 'required|numeric',
+            'keterangan' => 'nullable',
+            'id_nilai' => 'required',
         ],[
-            'nidn.required' => 'Nama Dosen wajib diisi !',
-            'id_matakuliah.required' => 'Nama Matakuliah wajib diisi !',
-            'id_tahun_akademik.required' => 'Tahun Akademik wajib diisi !',
-            'komposisi_nilai_lain.required' => 'Nilai Lain-lain Wajib diisi !',
-            'komposisi_nilai_uts.required' => 'Nilai UTS Wajib diisi !',
-            'komposisi_nilai_uas.required' => 'Nilai UAS Wajib diisi !',
+            'nim.required' => 'Mahasiswa wajib diisi !',
+            'lain_lain.required' => 'Nilai lain-lain wajib diisi !',
+            'lain_lain.min' => 'Nilai lain-lain tidak boleh kurang dari 0!',
+            'lain_lain.max' => 'Nilai lain-lain tidak boleh lebih dari 100!',
+            'uts.required' => 'Nilai UTS  wajib diisi !',
+            'uts.min' => 'Nilai UTS tidak boleh kurang dari 0!',
+            'uts.max' => 'Nilai UTS tidak boleh lebih dari 100!',
+            'uas.required' => 'Nilai UAS Wajib diisi !',
+            'uas.min' => 'Nilai UAS tidak boleh kurang dari 0!',
+            'uas.max' => 'Nilai UAS tidak boleh lebih dari 100!',
+            'komposisi_nilai_lain.required' => 'Komposisi Lain-lain Wajib diisi !',
+            'komposisi_nilai_uts.required' => 'Komposisi UTS Wajib diisi !',
+            'komposisi_nilai_uas.required' => 'Komposisi UAS Wajib diisi !',
+            'id_nilai.required' => 'id_nilai Wajib diisi !',
         ]);
-        $total = request()->komposisi_nilai_lain + request()->komposisi_nilai_uts + request()->komposisi_nilai_uas;
 
-        if ($total != 100) {
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['total_komposisi' => 'Total komposisi nilai harus tepat 100!']);
-        }
+        // Hitung nilai akhir
+        $bobot_lain = request()->komposisi_nilai_lain;
+        $bobot_uts = request()->komposisi_nilai_uts;
+        $bobot_uas = request()->komposisi_nilai_uas;
+        $nilai_akhir = (request()->lain_lain * ($bobot_lain / 100)) + (request()->uts * ($bobot_uts / 100)) + (request()->uas * ($bobot_uas / 100));
+
+        [$grade, $status] = $this->hitungGradeStatus($nilai_akhir);
+
+        $keterangan = request()->keterangan ?? 'tidak ada keterangan';
 
         $data = [
-            'nidn' => request()->nidn,
-            'id_matakuliah' => request()->id_matakuliah,
-            'id_tahun_akademik' => request()->id_tahun_akademik,
-            'komposisi_nilai_lain' => request()->komposisi_nilai_lain,
-            'komposisi_nilai_uts' => request()->komposisi_nilai_uts,
-            'komposisi_nilai_uas' => request()->komposisi_nilai_uas,
+            'nim' => request()->nim,
+            'lain_lain' => request()->lain_lain,
+            'uts' => request()->uts,
+            'uas' => request()->uas,
+            'nilai_akhir' => $nilai_akhir,
+            'grade' => $grade,
+            'status' => $status,
+            'keterangan' => $keterangan,
+            'id_nilai' => request()->id_nilai,
         ];
-        $this->m_admin->editData_nilai($id_nilai, $data);
-        return redirect()->route('nilai')->with('pesan', 'Data berhasil diedit !');
+        $this->m_admin->editData_rincian_nilai($id_detail_nilai, $data);
+        return $this->rincian_nilai($id_nilai)->with('pesan', 'Data berhasil ditambahkan !');
     }
 
-    public function delete_rincian_nilai($id_nilai){
-        if(!$this->m_admin->detailData_nilai($id_nilai))
+    public function delete_rincian_nilai($id_detail_nilai, $id_nilai){
+        if(!$this->m_admin->allData_rincian_nilai($id_detail_nilai))
         {abort(404);}
-        $this->m_admin->deleteData_nilai($id_nilai);
-        return redirect()->route('nilai')->with('pesan', 'Data berhasil dihapus !');
+        $this->m_admin->deleteData_rincian_nilai($id_detail_nilai);
+        return redirect()->route('rincian_nilai', $id_nilai)->with('pesan', 'Data berhasil dihapus !');
     }
 
     #----------------------------------------------------------------------------
 
-    #END NEW
+    #PRINT
+    public function printPdf(Request $request)
+    {
+        $type = $request->get('type');
+        $tanggal = now()->format('d M Y');
+    
+        switch ($type) {
+            case 'nilai':
+                $data = $this->m_admin->allData_nilai();
+                $view = 'exports.nilai_pdf_print';
+                break;
+    
+            case 'dosen':
+                $data = $this->m_admin->allData_dosen();
+                $view = 'exports.dosen_pdf';
+                break;
+    
+            default:
+                abort(404);
+        }
+    
+        $pdf = PDF::loadView($view, compact('data', 'tanggal'));
+        return $pdf->stream("data_$type.pdf");
+    }    
 }

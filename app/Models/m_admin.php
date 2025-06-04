@@ -1,15 +1,21 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use App\Models\Prodi;
-use App\Models\Jurusan;
-use App\Models\Matakuliah;
-use App\Models\Semester;
-use App\Models\Detail_nilai;
+
+#TABEL_DATABASE
+use App\Models\Table\Detail_nilai;
+use App\Models\Table\Dosen;
+use App\Models\Table\Jurusan;
+use App\Models\Table\Kelas;
+use App\Models\Table\Mahasiswa;
+use App\Models\Table\Matakuliah;
+use App\Models\Table\Nilai;
+use App\Models\Table\Prodi;
+use App\Models\Table\Semester;
+use App\Models\Table\Tahun_akademik;
 
 
 class m_admin extends Model
@@ -116,6 +122,7 @@ class m_admin extends Model
         ->where('id_nilai', $id_nilai)
         ->first();
     }
+
     public function allData_rincian_nilai() {
         return Detail_nilai::with([
             'mahasiswa',
@@ -129,6 +136,33 @@ class m_admin extends Model
         ])
         ->get()
         ->sortBy('mahasiswa.nama_mahasiswa'); // sortir setelah diambil
+    }
+
+    public function detail_rincian_nilai($id_detail_nilai) {
+        return Detail_nilai::with([
+            'mahasiswa',
+            'nilai',
+            'nilai.dosen',
+            'nilai.matakuliah',
+            'nilai.matakuliah.kelas',
+            'nilai.matakuliah.prodi',
+            'nilai.matakuliah.semester',
+            'nilai.tahun_akademik',
+        ])
+        ->where('id_detail_nilai', $id_detail_nilai)
+        ->first();
+    }
+
+    public function addData_rincian_nilai($data){
+        return DB::table('detail_nilai')->insert($data);
+    }
+
+    public function deleteData_rincian_nilai($id_detail_nilai){
+        DB::table('detail_nilai')->where('id_detail_nilai', $id_detail_nilai)->delete();
+    }
+
+    public function editData_rincian_nilai($id_detail_nilai, $data){
+        DB::table('detail_nilai')->where('id_detail_nilai', $id_detail_nilai)->update($data);
     }
 
     #USER
@@ -151,5 +185,4 @@ class m_admin extends Model
     public function deleteData_user($id){
         DB::table('users')->where('id', $id)->delete();
     }
-
 }

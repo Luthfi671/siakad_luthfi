@@ -115,7 +115,7 @@
                       {{ $errors->first('total_komposisi') }}
                     </div>
                   @endif
-
+                </div>
                 <div class="card-footer">
                   <a href="/admin/nilai" class="btn btn-primary">Kembali</a>
                   <button type="submit" class="btn btn-primary" style="float: right;">Edit</button>

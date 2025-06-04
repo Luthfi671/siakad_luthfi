@@ -7,12 +7,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Tambah Rincian Nilai</h1>
+            <h1>Edit Rincian Nilai</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Rincian Nilai</a></li>
-              <li class="breadcrumb-item active">Tambah Rincian Nilai</li>
+              <li class="breadcrumb-item active">Edit Rincian Nilai</li>
             </ol>
           </div>
         </div>
@@ -62,9 +62,9 @@
               </div>
 
               <div class="card-header">
-                <h3 class="card-title">Tambah Rincian Nilai</h3>
+                <h3 class="card-title">Edit Rincian Nilai</h3>
               </div>
-              <form action="/admin/nilai/rincian_nilai/insert/{{ $nilai->id_nilai }}" method="POST" enctype="multipart/form-data">
+              <form action="/admin/nilai/rincian_nilai/update/{{ $nilai1->id_detail_nilai }}/{{ $nilai1->id_nilai }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="card-body">
 
@@ -72,7 +72,7 @@
                     <label for="exampleInputPassword1">Nama Mahasiswa</label>
                     <input type="text" hidden name="id_nilai" value="{{ $nilai->id_nilai }}">
                     <select class="form-control" id="nim" name="nim">
-                      <option selected hidden>Pilih Mahasiswa</option>
+                      <option selected value="{{ $nilai1->nim }}" hidden>{{ $nilai1->mahasiswa->nama_mahasiswa }}</option>
                       @foreach ($mhs as $data)
                       <option value="{{ $data->nim }}">{{ $data->nama_mahasiswa }}</option>
                       @endforeach
@@ -87,7 +87,7 @@
                   <div class="form-group">
                     <label for="exampleInputPassword1">Nilai Lain-lain ({{ $nilai->komposisi_nilai_lain }}%)</label>
                     <input type="number" hidden name="komposisi_nilai_lain" value="{{ $nilai->komposisi_nilai_lain }}">
-                    <input type="number" name="lain_lain" class="form-control" placeholder="Nilai Lain-lain">
+                    <input type="number" name="lain_lain" class="form-control" value="{{ $nilai1->lain_lain }}" placeholder="Nilai Lain-lain">
                     <div class="text-danger">
                       @error('lain_lain')
                       {{$message}}
@@ -98,7 +98,7 @@
                   <div class="form-group">
                     <label for="exampleInputPassword1">Nilai UTS ({{ $nilai->komposisi_nilai_uts }}%)</label>
                     <input type="number" hidden name="komposisi_nilai_uts" value="{{ $nilai->komposisi_nilai_uts }}">
-                    <input type="number" name="uts" class="form-control" placeholder="Nilai UTS">
+                    <input type="number" name="uts" class="form-control" value="{{ $nilai1->uts }}" placeholder="Nilai UTS">
                     <div class="text-danger">
                       @error('uts')
                       {{$message}}
@@ -109,7 +109,7 @@
                   <div class="form-group">
                     <label for="exampleInputPassword1">Nilai UAS ({{ $nilai->komposisi_nilai_uas }}%)</label>
                     <input type="number" hidden name="komposisi_nilai_uas" value="{{ $nilai->komposisi_nilai_uas }}">
-                    <input type="number" name="uas" class="form-control" placeholder="Nilai UAS">
+                    <input type="number" name="uas" class="form-control" value="{{ $nilai1->uas }}" placeholder="Nilai UAS">
                     <div class="text-danger">
                       @error('uas')
                       {{$message}}
@@ -124,7 +124,7 @@
 
                   <div class="form-group">
                     <label for="exampleInputPassword1">Keterangan</label>
-                    <input type="text" name="keterangan" class="form-control" placeholder="Keterangan">
+                    <input type="text" name="keterangan" class="form-control" value="{{ $nilai1->keterangan }}" placeholder="Keterangan">
                     <div class="text-danger">
                       @error('keterangan')
                       {{$message}}
@@ -136,7 +136,7 @@
 
                 <div class="card-footer">
                     <a href="/admin/nilai/rincian_nilai/{{ $nilai->id_nilai }}" class="btn btn-primary">Kembali</a>
-                    <button type="submit" class="btn btn-primary" style="float: right;">Tambah</button>
+                    <button type="submit" class="btn btn-primary" style="float: right;">Edit</button>
                 </div>
               </form>
             </div>

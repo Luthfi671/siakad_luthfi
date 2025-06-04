@@ -31,8 +31,10 @@
                   <div class="col-12">
                     <div class="callout callout-info">
                       <h5><i class="fas fa-info"></i> Note:</h5>
+                      <a href="?print=true" target="_blank" class="btn btn-warning ml-2 text-sm no-print" style="float: right;"><b>Print Data Nilai</b></a>
                       This page has been enhanced for printing. Click the print button at the bottom of the invoice to test.
                     </div>
+                    
 
 
                     <!-- Main content -->

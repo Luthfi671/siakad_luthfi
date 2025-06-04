@@ -47,7 +47,6 @@ use App\Http\Controllers\c_admin;
 Route::get('/admin/kelola_dosen', [c_admin::class, 'kelola_dosen'])->name('dosen');
 Route::get('/admin/about', [c_admin::class, 'about'])->name('about');
 Route::get('/admin/mahasiswa', [c_admin::class, 'mahasiswa'])->name('mahasiswa');
-Route::get('/admin/nilai', [c_admin::class, 'nilai'])->name('nilai');
 Route::get('/admin/user', [c_admin::class, 'user'])->name('user');
 Route::get('/admin/invoice', [c_admin::class, 'invoice'])->name('invoice');
 Route::get('/admin/chart', [c_admin::class, 'chart'])->name('chart');
@@ -66,18 +65,27 @@ Route::get('/admin/mahasiswa/delete/{nim}', [c_admin::class, 'delete_mahasiswa']
 Route::post('/admin/mahasiswa/update/{nim}', [c_admin::class, 'update_mahasiswa'])->name('update_mahasiswa');
 Route::post('/admin/mahasiswa/insert', [c_admin::class, 'insert_mahasiswa'])->name('insert_mahasiswa');
 #ADMIN-NILAI
+Route::get('/admin/nilai', [c_admin::class, 'nilai'])->name('nilai');
 Route::get('/admin/nilai/add', [c_admin::class, 'add_nilai'])->name('add_nilai');
 Route::get('/admin/nilai/edit/{id_nilai}', [c_admin::class, 'edit_nilai'])->name('edit_nilai');
 Route::get('/admin/nilai/delete/{id_nilai}', [c_admin::class, 'delete_nilai'])->name('delete_nilai');
 Route::post('/admin/nilai/update/{id_nilai}', [c_admin::class, 'update_nilai'])->name('update_nilai');
 Route::post('/admin/nilai/insert', [c_admin::class, 'insert_nilai'])->name('insert_nilai');
 #ADMIN-NILAI-RINCIAN_NILAI
+Route::get('/admin/nilai/rincian_nilai/delete/{id_detail_nilai}/{id_nilai}', [c_admin::class, 'delete_rincian_nilai'])->name('delete_rincian_nilai');
 Route::get('/admin/nilai/rincian_nilai/{id_nilai}', [c_admin::class, 'rincian_nilai'])->name('rincian_nilai');
 Route::get('/admin/nilai/rincian_nilai/add/{id_nilai}', [c_admin::class, 'add_rincian_nilai'])->name('add_rincian_nilai');
-Route::get('/admin/nilai/rincian_nilai/insert', [c_admin::class, 'insert_rincian_nilai'])->name('insert_rincian_nilai');
+Route::get('/admin/nilai/rincian_nilai/edit/{id_detail_nilai}/{id_nilai}', [c_admin::class, 'edit_rincian_nilai'])->name('edit_rincian_nilai');
+Route::post('/admin/nilai/rincian_nilai/update/{id_detail_nilai}/{id_nilai}', [c_admin::class, 'update_rincian_nilai'])->name('update_rincian_nilai');
+Route::post('/admin/nilai/rincian_nilai/insert/{id_nilai}', [c_admin::class, 'insert_rincian_nilai'])->name('insert_rincian_nilai');
 
 #DOSEN--------------------------------------
 use App\Http\Controllers\c_dosen;
+
+
+#PRINT
+Route::get('/print_pdf', [c_admin::class, 'printPdf'])->name('print_pdf');
+
 
 Route::get('/dosen/kelola_akun', [c_dosen::class, 'kelola_akun'])->name('kelola_akun');
 

@@ -27,8 +27,8 @@
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">Tabel Nilai</h3>
-                
-                <a href="/admin/nilai/add" class="btn btn-primary" style="float: right;"><b>ADD</b></a>
+                <a href="{{ route('print_pdf', ['type' => 'nilai']) }}" target="_blank" class="btn btn-warning ml-2 text-sm" style="float: right;"><b>Print Data Nilai</b></a>
+                <a href="/admin/nilai/add" class="btn btn-primary ml-2 text-sm" style="float: right;"><b>ADD</b></a>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
@@ -86,7 +86,7 @@
   </div>
 
 
-<script>
+  <script>
   $(function () {
     $("#example1").DataTable({
       "responsive": true, "lengthChange": false, "autoWidth": false,

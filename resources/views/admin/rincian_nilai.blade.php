@@ -47,7 +47,7 @@
                     </div>
                   </div>
                   <div class="d-flex mr-5">
-                    <div class="left mr-3">
+                    <div class="left mr-3"> 
                       <p class="mb-1">Tahun Akademi</p>
                       <p class="mb-1">Kelas</p>
                       <p class="mb-1">Jurusan</p>
@@ -60,7 +60,8 @@
                   </div>
                 </div>
                 <a href="/admin/nilai/rincian_nilai/add/{{ $nilai->id_nilai }}" class="btn btn-warning ml-2 text-sm" style="float: right;"><b>Print Data Nilai</b></a>
-                <a href="/admin/nilai/rincian_nilai/add/{{ $nilai->id_nilai }}" class="btn btn-primary text-sm" style="float: right;"><b>Tambah Data Nilai</b></a>
+                <a href="/admin/nilai/rincian_nilai/add/{{ $nilai->id_nilai }}" class="btn btn-primary ml-2 text-sm" style="float: right;"><b>Tambah Data Nilai</b></a>
+                <a href="/admin/nilai" class="btn btn-primary text-sm" style="float: right;"><b>Kembali</b></a>
               </div>
             </div>
             <!-- card tabel -->
@@ -91,6 +92,7 @@
                     <tr>
                       <td>{{ $no++ }}</td>
                       <td>{{ $data->mahasiswa->nim }}</td>
+                      <td>{{ $data->mahasiswa->nama_mahasiswa }}</td>
                       <td>{{ $data->lain_lain }}</td>
                       <td>{{ $data->uts }}</td>
                       <td>{{ $data->uas }}</td>
@@ -99,8 +101,8 @@
                       <td>{{ $data->status }}</td>
                       <td>{{ $data->keterangan }}</td>
                       <td style="display:flex; flex-direction: column; gap:2px; border:none;">
-                          <a href="/admin/nilai/edit/" class="btn btn-warning p-1">Edit Nilai</a>
-                          <a href="/admin/nilai/delete/" type="button" class="btn btn-danger p-1" data-toggle="modal" data-target="#delete">Delete Nilai</a>
+                          <a href="/admin/nilai/rincian_nilai/edit/{{ $data->id_detail_nilai }}/{{ $data->id_nilai }}" class="btn btn-warning p-1">Edit Nilai</a>
+                          <a href="/admin/nilai/rincian_nilai/delete/{{ $data->id_detail_nilai }}/{{ $data->id_nilai }}" type="button" class="btn btn-danger p-1" data-toggle="modal" data-target="#delete{{ $data->id_detail_nilai }}">Delete Nilai</a>
                       </td>
                     </tr>
                     @endforeach
@@ -138,25 +140,25 @@
   });
 </script>
 
-@foreach ($nilai as $data)
+@foreach ($rincian_nilai as $data)
 <!-- modal pop up danger -->
-<div class="modal fade" id="delete">
+<div class="modal fade" id="delete{{ $data->id_detail_nilai }}">
   <div class="modal-dialog">
     <div class="modal-content bg-danger">
       <div class="modal-header">
-        <h4 class="modal-title"></h4>
+        <h4 class="modal-title">{{ $data->mahasiswa->nama_mahasiswa }}</h4>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-      <span>ID : </span> <br>
-      <span>Matakuliah : </span>
+      <span>ID : {{ $data->id_detail_nilai }}</span> <br>
+      <span>Grade : {{ $data->grade }}</span>
         <p>Apakah anda yakin ingin menghapus data ini?</p>
       </div>
       <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-outline-light" data-dismiss="modal">Close</button>
-        <a href="/admin/nilai/delete/" type="button" class="btn btn-outline-light">Delete</a>
+        <a href="/admin/nilai/rincian_nilai/delete/{{ $data->id_detail_nilai }}/{{ $data->id_nilai }}" type="button" class="btn btn-outline-light">Delete</a>
       </div>
     </div>
     <!-- /.modal-content -->
